@@ -1,63 +1,37 @@
 from pydantic import BaseModel
 
 
-# ---------- Department ----------
-
-class DepartmentBase(BaseModel):
+class DepartmentCreate(BaseModel):
     name: str
 
 
-class DepartmentCreate(DepartmentBase):
-    pass
+class StudentCreate(BaseModel):
+    name: str
+    email: str
+    department_id: int
 
 
-# ---------- Student Profile ----------
-
-class StudentProfileBase(BaseModel):
+class StudentProfileCreate(BaseModel):
     address: str
     phone: str
 
 
-class StudentProfileCreate(StudentProfileBase):
-    pass
+class CourseCreate(BaseModel):
+    title: str
 
 
-class StudentProfileResponse(StudentProfileBase):
+class CourseResponse(BaseModel):
     id: int
+    title: str
 
     class Config:
         from_attributes = True
 
 
-# ---------- Student ----------
-
-class StudentBase(BaseModel):
-    name: str
-    email: str
-
-
-class StudentCreate(StudentBase):
-    department_id: int
-
-
-class StudentUpdate(StudentBase):
-    department_id: int
-
-
-class StudentResponse(StudentBase):
-    id: int
-    profile: StudentProfileResponse | None = None
-
-    class Config:
-        from_attributes = True
-
-
-# ---------- Department Response ----------
-
-class DepartmentResponse(BaseModel):
+class StudentResponse(BaseModel):
     id: int
     name: str
-    students: list[StudentResponse] = []
+    courses: list[CourseResponse] = []
 
     class Config:
         from_attributes = True
