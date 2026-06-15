@@ -1,55 +1,60 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-
 from database import Base
 
-student_course = Table(
-    "student_course",
-    Base.metadata,
-    Column("student_id", Integer, ForeignKey("students.id")),
-    Column("course_id", Integer, ForeignKey("courses.id"))
-)
 
-
-class Student(Base):
-    __tablename__ = "students"
+# ---------------- USER ----------------
+class User(Base):
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-    email = Column(String(100))
-    department_id = Column(Integer, ForeignKey("departments.id"))
+    name = Column(String)
+    email = Column(String)
 
-    courses = relationship(
-        "Course",
-        secondary=student_course,
-        back_populates="students"
+    tasks = relationship("Task", back_populates="user")
+
+
+# ---------------- TASK ----------------
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    completed = Column(Boolean, default=False)
+
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="tasks")
+
+    task_detail = relationship(
+        "TaskDetail",
+        back_populates="task",
+        uselist=False
     )
 
-
-class Course(Base):
-    __tablename__ = "courses"
-
-    id = Column(Integer, primary_key=True)
-    title = Column(String(100))
-
-    students = relationship(
-        "Student",
-        secondary=student_course,
-        back_populates="courses"
-    )
+    tags = relationship("Tag", back_populates="task")
 
 
-class Department(Base):
-    __tablename__ = "departments"
+# ---------------- TASK DETAIL ----------------
+class TaskDetail(Base):
+    __tablename__ = "task_details"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    description = Column(String)
+    due_date = Column(String)
+
+    task_id = Column(Integer, ForeignKey("tasks.id"), unique=True)
+
+    task = relationship("Task", back_populates="task_detail")
 
 
-class StudentProfile(Base):
-    __tablename__ = "student_profiles"
+# ---------------- TAG ----------------
+class Tag(Base):
+    __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True)
-    address = Column(String(100))
-    phone = Column(String(20))
-    student_id = Column(Integer, ForeignKey("students.id"))
+    tag_name = Column(String)
+
+    task_id = Column(Integer, ForeignKey("tasks.id"))
+
+    task = relationship("Task", back_populates="tags")

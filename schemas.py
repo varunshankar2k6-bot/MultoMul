@@ -1,37 +1,29 @@
 from pydantic import BaseModel
 
 
-class DepartmentCreate(BaseModel):
-    name: str
-
-
-class StudentCreate(BaseModel):
+class UserCreate(BaseModel):
     name: str
     email: str
-    department_id: int
 
 
-class StudentProfileCreate(BaseModel):
-    address: str
-    phone: str
-
-
-class CourseCreate(BaseModel):
-    title: str
-
-
-class CourseResponse(BaseModel):
+class UserResponse(BaseModel):
     id: int
-    title: str
+    name: str
+    email: str
 
     class Config:
         from_attributes = True
 
 
-class StudentResponse(BaseModel):
+class TaskCreate(BaseModel):
+    title: str
+
+
+class TaskResponse(BaseModel):
     id: int
-    name: str
-    courses: list[CourseResponse] = []
+    title: str
+    completed: bool
+    user_id: int
 
     class Config:
         from_attributes = True
