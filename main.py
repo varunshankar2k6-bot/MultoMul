@@ -13,6 +13,7 @@ from schemas import (
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
+# Database 
 def get_db():
     db = SessionLocal()
     try:
@@ -20,7 +21,7 @@ def get_db():
     finally:
         db.close()
 
-#Creating user using id
+# Creating a new user
 @app.post("/users/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = User(
@@ -32,13 +33,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-# Task adding for specific user
+# Adding a task for a specific user
 @app.post("/users/{user_id}/tasks", response_model=TaskResponse)
 def add_task(
         user_id: int,
         task: TaskCreate,
         db: Session = Depends(get_db)
-):
+            ):
     user = db.query(User).filter(
         User.id == user_id
     ).first()
@@ -56,7 +57,7 @@ def add_task(
     db.refresh(new_task)
     return new_task
 
-#Displaying all tasks of a user
+# Displaying all tasks of a user
 @app.get("/users/{user_id}/tasks",
          response_model=list[TaskResponse])
 def get_tasks(
@@ -68,6 +69,7 @@ def get_tasks(
     ).all()
     return tasks
 
+# Displaying only pending tasks of a user
 @app.get("/users/{user_id}/pending",
          response_model=list[TaskResponse])
 def get_pending_tasks(
@@ -80,7 +82,7 @@ def get_pending_tasks(
     ).all()
     return tasks
 
-#Change tag to completed
+# Marking a task as completed
 @app.put("/tasks/{task_id}",
          response_model=TaskResponse)
 def complete_task(
@@ -100,7 +102,7 @@ def complete_task(
     db.refresh(task)
     return task
 
-#Removing a task
+# Removing a task
 @app.delete("/tasks/{task_id}")
 def delete_task(
         task_id: int,
@@ -120,7 +122,7 @@ def delete_task(
         "message": "Task deleted successfully"
     }
 
-#Tag creation
+# Creating a new tag
 @app.post("/tags/", response_model=TagResponse)
 def create_tag(
         tag: TagCreate,
@@ -129,12 +131,13 @@ def create_tag(
     new_tag = Tag(
         tag_name=tag.tag_name
     )
+
     db.add(new_tag)
     db.commit()
     db.refresh(new_tag)
     return new_tag
 
-#Tag for tasks
+# Assigning a tag to a task
 @app.post("/tasks/{task_id}/tags/{tag_id}")
 def assign_tag(
         task_id: int,
@@ -144,14 +147,16 @@ def assign_tag(
     task = db.query(Task).filter(
         Task.id == task_id
     ).first()
-    tag = db.query(Tag).filter(
-        Tag.id == tag_id
-    ).first()
+
     if task is None:
         raise HTTPException(
             status_code=404,
             detail="Task not found"
         )
+    tag = db.query(Tag).filter(
+        Tag.id == tag_id
+    ).first()
+
     if tag is None:
         raise HTTPException(
             status_code=404,
@@ -159,12 +164,11 @@ def assign_tag(
         )
     task.tags.append(tag)
     db.commit()
-
     return {
         "message": "Tag assigned successfully"
     }
 
-#get tags
+# Displaying all tags of a task
 @app.get("/tasks/{task_id}/tags",
          response_model=list[TagResponse])
 def get_task_tags(
@@ -181,6 +185,7 @@ def get_task_tags(
         )
     return task.tags
 
+# Displaying all tasks associated with a tag
 @app.get("/tags/{tag_id}/tasks",
          response_model=list[TaskResponse])
 def get_tag_tasks(
@@ -190,7 +195,6 @@ def get_tag_tasks(
     tag = db.query(Tag).filter(
         Tag.id == tag_id
     ).first()
-
     if tag is None:
         raise HTTPException(
             status_code=404,
