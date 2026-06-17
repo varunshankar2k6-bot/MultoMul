@@ -52,6 +52,7 @@ class User(Base):
         "Task",
         back_populates="user"
     )
+    phone = Column(String(20))
 
 #task details
 class Task(Base):
