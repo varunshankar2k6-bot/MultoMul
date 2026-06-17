@@ -6,10 +6,7 @@ from schemas import (
     TaskCreate,
     TaskResponse
 )
-from jwt_utils import (
-    get_current_user,
-    admin_required
-)
+from jwt_utils import get_current_user
 router = APIRouter()
 
 #Adding Task
@@ -40,7 +37,7 @@ def add_task(
 )
 def all_tasks(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(admin_required)
+    current_user: dict = Depends(get_current_user)
 ):
     tasks = db.query(Task).all()
     return tasks
