@@ -3,13 +3,9 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import Task, Tag
 from schemas import TagCreate, TagResponse, TaskResponse
+from database import get_db
 router = APIRouter()
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 # Creating tag
 @router.post("/",
              response_model=TagResponse)
